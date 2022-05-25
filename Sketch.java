@@ -17,10 +17,10 @@ public class Sketch extends PApplet {
   boolean blnGridPressed = false;
   boolean blnGridPrint = false;
 
-  int intCellSelected = 0;
-  int intRowSelected = 0;
-  int intColumnSelected = 0;
-  int intContinuos = 0;
+  int intCellSelected;
+  int intRowSelected;
+  int intColumnSelected;
+  int intContinuous;
 
   int[][] intGrid = new int [ROW_COUNT][COLUMN_COUNT];
   
@@ -41,14 +41,15 @@ public class Sketch extends PApplet {
    * Called repeatedly, anything drawn to the screen goes here
    */
   public void draw() {
-	  
+    drawGrid();
+    gridSystem();
   }
 
   /**
    * Drawing the grid and calculates values
    */
-  public void drawGrid(){
-    for(int COLUMNS = 0; COLUMNS < COLUMNS_COUNT; COLUMNS++){
+  public void drawGrid() {
+    for(int COLUMNS = 0; COLUMNS < COLUMN_COUNT; COLUMNS++){
       for(int ROWS = 0; ROWS < ROW_COUNT; ROWS++){
         if(blnGridPressed && intMouseX == COLUMNS && intMouseY == ROWS){
           // Block in the middle
@@ -97,7 +98,7 @@ public class Sketch extends PApplet {
             intCellSelected--;
           }
           // Outputting message
-          System.out.println("Total of " + intCellSelected + "cells are selected.")
+          System.out.println("Total of " + intCellSelected + "cells are selected.");
           blnGridPressed = false;
         }
         // Changing colour to green
@@ -108,22 +109,64 @@ public class Sketch extends PApplet {
           fill(255, 255, 255);
         }
         // Drawing grid
-         rect(MARGIN + (COLUMNS * (CELL_WIDTH + MARGIN)), MARGIN + (ROWS * (CELL_HEIGHT + MARGIN)), CELL_WIDTH, CELL_HEIGHT);
+        rect(MARGIN + (COLUMNS * (CELL_WIDTH + MARGIN)), MARGIN + (ROWS * (CELL_HEIGHT + MARGIN)), CELL_WIDTH, CELL_HEIGHT);
+
+        // Reset the values
+        intCellSelected = 0;
+        intRowSelected = 0;
+        intColumnSelected = 0;
+        intContinuous = 0;
       }
     }
   }
 
-  public void gridSystem(){
+  public void gridSystem() {
     if(blnGridPrint){
       for(int i = 0; i < ROW_COUNT; i++){
         for(int f = 0; f < COLUMN_COUNT; f++){
-          
+          if(intGrid[i][f] == 1){
+            intRowSelected++;
+          }
+          if(f < COLUMN_COUNT - 1){
+            if(intGrid[i][f] == 1 && intGrid[i][f+1] == 1){
+            intContinuous++;
+            }
+          }
+          if(f > 0 && f < COLUMN_COUNT){
+            if(intGrid[i][f-1] == 1 && intGrid[i][f] == 1 && f == COLUMN_COUNT - 1){
+              intContinuous++;
+            }
+            else if(intGrid[i][f-1] == 1 && intGrid[i][f] == 1 && intGrid[i][f+1] == 0 && f < COLUMN_COUNT - 1){
+              intContinuous++;
+            }
+          }
         }
-      }
+    if(intRowSelected > 2 && intContinuous > 0){
+      System.out.println("There are " + intContinuous + " continuous blocks selected on row " + i + ".");
     }
+        System.out.println("Row " + i + " has " + intRowSelected + " cells selected.");
+          
+        intRowSelected = 0;
+        intContinuous = 0;
+      }
+      for(int i = 0; i < COLUMN_COUNT; i++){
+        for(int f = 0; f < ROW_COUNT; f ++){
+          if(intGrid[f][i] == 1){
+            intColumnSelected++;
+          }
+        }
+        System.out.println("Column " + i + " has " + intColumnSelected + " cells selected.");
+        
+        intColumnSelected = 0;
+      }
+      blnGridPrint = false;
   }
+}
   
   public void mousePressed(){
-    
+    intMouseX = mouseX / (MARGIN + CELL_WIDTH);
+    intMouseY = mouseY / (MARGIN + CELL_WIDTH);
+    blnGridPressed = true;
+    blnGridPrint = true;
   }
 }
